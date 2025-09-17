@@ -1,0 +1,1065 @@
+zabbix_export:
+  version: '6.0'
+  date: '2025-09-17T14:44:05Z'
+  groups:
+    - uuid: b56506d6f54a453a90a82e58fbf49870
+      name: Digiton
+  templates:
+    - uuid: 4bbc5db3af7e45d8b74935e815e61277
+      template: 'Digiton DIP100-API'
+      name: 'Digiton DIP100-API'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: Digiton
+      items:
+        - uuid: 8c95c47b2646441da895cdabc2e10910
+          name: 'Serial number'
+          type: DEPENDENT
+          key: digiton.serial
+          delay: '0'
+          trends: '0'
+          value_type: TEXT
+          inventory_link: SERIALNO_A
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data..Hardware.Serial
+            - type: STR_REPLACE
+              parameters:
+                - '['
+                - ''
+            - type: STR_REPLACE
+              parameters:
+                - ']'
+                - ''
+            - type: STR_REPLACE
+              parameters:
+                - '"'
+                - ''
+          master_item:
+            key: raw.system.status
+          tags:
+            - tag: Digiton
+              value: serial
+        - uuid: 1dad372681c44eeda231d9ec1eb625f4
+          name: 'Front-panel auto lock status'
+          type: DEPENDENT
+          key: frontpanel.autolock
+          delay: '0'
+          history: 30d
+          valuemap:
+            name: 'General Status'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $..data.auto_lock
+            - type: TRIM
+              parameters:
+                - '[|]'
+            - type: STR_REPLACE
+              parameters:
+                - 'false'
+                - '0'
+            - type: STR_REPLACE
+              parameters:
+                - 'true'
+                - '1'
+          master_item:
+            key: raw.frontpanel.status
+          tags:
+            - tag: component
+              value: Front-panel
+          triggers:
+            - uuid: f5b6759a90124b7186e47ab23729d0bb
+              expression: 'last(/Digiton DIP100-API/frontpanel.autolock)<>{$FPAL_STATUS}'
+              name: 'Front-panel lock-screen status IS WRONG'
+              priority: INFO
+              description: 'Проверка на корректность настройки блокировки центральной физической панели устройства'
+        - uuid: 6e972ae7cf5f4a3fb5f1ef480e73329e
+          name: 'Front-panel lock-screen status'
+          type: DEPENDENT
+          key: frontpanel.lockscreen
+          delay: '0'
+          history: 30d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $..data.lock_screen
+            - type: TRIM
+              parameters:
+                - '[|]|"'
+          master_item:
+            key: raw.frontpanel.status
+          tags:
+            - tag: component
+              value: Front-panel
+        - uuid: 3871d085a38341b5a173bb7c6c5ee041
+          name: 'Front-panel PIN status'
+          type: DEPENDENT
+          key: frontpanel.pin
+          delay: '0'
+          history: 30d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $..data.password
+            - type: TRIM
+              parameters:
+                - '[|]|"'
+          master_item:
+            key: raw.frontpanel.status
+          tags:
+            - tag: component
+              value: Front-panel
+        - uuid: 4d1bea50ad7c4e42aeae159edf4588a8
+          name: 'Front-panel timeout status'
+          type: DEPENDENT
+          key: frontpanel.timeout
+          delay: '0'
+          history: 30d
+          units: m
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $..data.timeout
+            - type: TRIM
+              parameters:
+                - '[|]'
+          master_item:
+            key: raw.frontpanel.status
+          tags:
+            - tag: component
+              value: Front-panel
+        - uuid: 09b2e662c8cd4dc1b178fe9c59a9dffb
+          name: 'Info DIP'
+          type: DEPENDENT
+          key: general.info
+          delay: '0'
+          history: 30d
+          trends: '0'
+          value_type: TEXT
+          description: 'Вспомогательная информация об устройстве, которая, при соответствующих настройках, может выводиться на заблокированном дисплее;'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $..data.info
+            - type: TRIM
+              parameters:
+                - '[|]|"'
+          master_item:
+            key: raw.general.status
+          tags:
+            - tag: component
+              value: General
+        - uuid: 2a2e3cbcf9de4aab9f2d4ff64f7255f4
+          name: 'Region DIP'
+          type: DEPENDENT
+          key: general.region
+          delay: '0'
+          history: 30d
+          trends: '0'
+          value_type: TEXT
+          description: 'информация о названии и местоположении устройства, которая будет выводится в верхнем левом углу веб-интерфейса;'
+          inventory_link: LOCATION
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $..data.region
+            - type: TRIM
+              parameters:
+                - '[|]|"'
+          master_item:
+            key: raw.general.status
+          tags:
+            - tag: component
+              value: General
+        - uuid: 7add34ada5fd45f48635298640598fde
+          name: 'RX Status'
+          type: DEPENDENT
+          key: general.rx
+          delay: '0'
+          history: 30d
+          description: 'Наличие/отсутствие галочек в этих полях включает/выключает прием и передачу сигналов в выходном и входном каналах, соответственно (подробнее о приеме и передаче сигналов см. раздел "Настройки потоков").'
+          valuemap:
+            name: 'General Status'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $..data.rx
+            - type: TRIM
+              parameters:
+                - '[|]'
+            - type: STR_REPLACE
+              parameters:
+                - 'true'
+                - '1'
+            - type: STR_REPLACE
+              parameters:
+                - 'false'
+                - '0'
+          master_item:
+            key: raw.general.status
+          tags:
+            - tag: component
+              value: General
+        - uuid: 366460c2d07b40e1b4347926e6b9a2ec
+          name: 'Name of DIP'
+          type: DEPENDENT
+          key: general.title
+          delay: '0'
+          history: 30d
+          trends: '0'
+          value_type: TEXT
+          description: 'Вспомогательная информация об устройстве, которая, при соответствующих настройках, может выводиться на заблокированном дисплее;'
+          inventory_link: TYPE
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $..data.title
+            - type: TRIM
+              parameters:
+                - '[|]|"'
+          master_item:
+            key: raw.general.status
+          tags:
+            - tag: component
+              value: General
+        - uuid: 271681b987e74fe5b02e09d1aaf83c40
+          name: 'TX Status'
+          type: DEPENDENT
+          key: general.tx
+          delay: '0'
+          history: 30d
+          description: 'Наличие/отсутствие галочек в этих полях включает/выключает прием и передачу сигналов в выходном и входном каналах, соответственно (подробнее о приеме и передаче сигналов см. раздел "Настройки потоков").'
+          valuemap:
+            name: 'General Status'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $..data.tx
+            - type: TRIM
+              parameters:
+                - '[|]'
+            - type: STR_REPLACE
+              parameters:
+                - 'true'
+                - '1'
+            - type: STR_REPLACE
+              parameters:
+                - 'false'
+                - '0'
+          master_item:
+            key: raw.general.status
+          tags:
+            - tag: component
+              value: General
+        - uuid: ebe347448f774ffbaf408a3261c9c8cd
+          name: 'CPU Temperature'
+          type: DEPENDENT
+          key: hardware.cpu.temperature
+          delay: '0'
+          history: 30d
+          units: °C
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data..Hardware.CPU_temp
+            - type: TRIM
+              parameters:
+                - '[|]|"'
+          master_item:
+            key: raw.system.status
+          tags:
+            - tag: component
+              value: cpu
+            - tag: component
+              value: health
+          triggers:
+            - uuid: 630dcd3907dd48ed8d9894b248823953
+              expression: 'avg(/Digiton DIP100-API/hardware.cpu.temperature,5m)>{$TEMP_CRIT_CPU}'
+              name: 'CPU: Temperature is above critical threshold'
+              event_name: 'CPU: Temperature is above critical threshold: >{$TEMP_CRIT_CPU}'
+              opdata: 'Current value: {ITEM.LASTVALUE1}'
+              priority: HIGH
+              description: 'This trigger uses temperature sensor values as well as temperature sensor status if available'
+            - uuid: 34512d885a6a4971b3b50b8f76837470
+              expression: 'avg(/Digiton DIP100-API/hardware.cpu.temperature,5m)>{$TEMP_WARN_CPU}'
+              name: 'CPU: Temperature is above warning threshold'
+              priority: WARNING
+            - uuid: da63cce4278a4e69bc96b08b9f0327a0
+              expression: 'avg(/Digiton DIP100-API/hardware.cpu.temperature,5m)<{$TEMP_CRIT_LOW_CPU}'
+              name: 'CPU: Temperature is too low'
+              event_name: 'CPU: Temperature is too low: <{$TEMP_CRIT_LOW_CPU}'
+              opdata: 'Current value: {ITEM.LASTVALUE1}'
+              priority: AVERAGE
+        - uuid: 012bc178ae9a444a9f6bf45c9aefb974
+          name: 'CPU Usage %'
+          type: DEPENDENT
+          key: hardware.cpu.usage
+          delay: '0'
+          history: 30d
+          units: '%'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data..Hardware.CPU_usage
+            - type: TRIM
+              parameters:
+                - '[|]|"'
+          master_item:
+            key: raw.system.status
+          tags:
+            - tag: component
+              value: cpu
+            - tag: component
+              value: health
+          triggers:
+            - uuid: 87265c23ad674a488d1a247c806a2663
+              expression: 'min(/Digiton DIP100-API/hardware.cpu.usage,5m)>{$CPU.UTIL.CRIT}'
+              name: 'CPU high utlization'
+              event_name: 'High CPU utilization (over {$CPU.UTIL.CRIT}% for 5m)'
+              opdata: 'Current utilization: {ITEM.LASTVALUE1}'
+              priority: WARNING
+              description: 'CPU utilization is too high. The system might be slow to respond.'
+              tags:
+                - tag: scope
+                  value: performance
+        - uuid: 1cbf6c65167848cd9cec524be22ce495
+          name: 'Free Memory'
+          type: DEPENDENT
+          key: hardware.memory.free
+          delay: '0'
+          history: 30d
+          units: B
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data..Hardware.Free_RAM
+            - type: TRIM
+              parameters:
+                - '[|]|"'
+            - type: MULTIPLIER
+              parameters:
+                - '1048576'
+          master_item:
+            key: raw.system.status
+          tags:
+            - tag: component
+              value: health
+            - tag: component
+              value: Memory
+        - uuid: 97233837eb154c0ebf3d7ad083879953
+          name: 'System disk usage %'
+          type: DEPENDENT
+          key: hardware.system_disk_usage
+          delay: '0'
+          history: 30d
+          value_type: FLOAT
+          units: '%'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data..Hardware.System_disk_usage
+            - type: TRIM
+              parameters:
+                - '[|]'
+          master_item:
+            key: raw.system.status
+          tags:
+            - tag: component
+              value: hdd
+            - tag: component
+              value: health
+        - uuid: 4fbe53ff06fa4e05ad0f574fdf671b4d
+          name: 'RX Left'
+          type: DEPENDENT
+          key: levels.leftlevel.rx
+          delay: '0'
+          history: 30d
+          value_type: FLOAT
+          units: dB
+          description: 'Интегральная громкость по RX'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$..data.rx.[255].left'
+            - type: TRIM
+              parameters:
+                - '[|]|"'
+          master_item:
+            key: raw.levels.status
+          tags:
+            - tag: component
+              value: Levels
+        - uuid: b5eba83ab5a94e219134ae0b800d8963
+          name: 'TX Left'
+          type: DEPENDENT
+          key: levels.leftlevel.tx
+          delay: '0'
+          history: 30d
+          value_type: FLOAT
+          units: dB
+          description: 'Уровень громкости на левом канале по TX'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$..data.tx.[255].left'
+            - type: TRIM
+              parameters:
+                - '[|]'
+          master_item:
+            key: raw.levels.status
+          tags:
+            - tag: component
+              value: Levels
+        - uuid: 150802322d8f4854b6d4abe202a1f19e
+          name: 'RX Loudness'
+          type: DEPENDENT
+          key: levels.loudness.rx
+          delay: '0'
+          history: 30d
+          value_type: FLOAT
+          units: LUFs
+          description: 'Интегральная громкость по RX'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$..data.rx.[255].loudness'
+            - type: TRIM
+              parameters:
+                - '[|]|"'
+          master_item:
+            key: raw.levels.status
+          tags:
+            - tag: component
+              value: Levels
+        - uuid: 40b54fc4b6b146578884621e8c229ad3
+          name: 'TX Loudness'
+          type: DEPENDENT
+          key: levels.loudness.tx
+          delay: '0'
+          history: 30d
+          value_type: FLOAT
+          units: LUFs
+          description: 'Интегральная громкость по RX'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$..data.tx.[255].loudness'
+            - type: TRIM
+              parameters:
+                - '[|]'
+          master_item:
+            key: raw.levels.status
+          tags:
+            - tag: component
+              value: Levels
+        - uuid: d972543deacc4d84ba6ed5afd6b21fc0
+          name: 'RX Right'
+          type: DEPENDENT
+          key: levels.rightlevel.rx
+          delay: '0'
+          history: 30d
+          value_type: FLOAT
+          units: dB
+          description: 'Интегральная громкость по RX'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$..data.rx.[255].right'
+            - type: TRIM
+              parameters:
+                - '[|]|"'
+          master_item:
+            key: raw.levels.status
+          tags:
+            - tag: component
+              value: Levels
+        - uuid: 3513132b3fe648959441e37a3c2ff9cb
+          name: 'TX Right'
+          type: DEPENDENT
+          key: levels.rightlevel.tx
+          delay: '0'
+          history: 30d
+          value_type: FLOAT
+          units: dB
+          description: 'Уровень громкости на правом канале по TX'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$..data.tx.[255].right'
+            - type: TRIM
+              parameters:
+                - '[|]'
+          master_item:
+            key: raw.levels.status
+          tags:
+            - tag: component
+              value: Levels
+        - uuid: 12dbee25dffe4461b6f349a9e4db9993
+          name: 'NTP Enabled status'
+          type: DEPENDENT
+          key: ntp.enabled.status
+          delay: '0'
+          history: 30d
+          description: 'Состояние сервиса NTP'
+          valuemap:
+            name: 'NTP Status'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data..network_time
+            - type: TRIM
+              parameters:
+                - '[|]'
+            - type: STR_REPLACE
+              parameters:
+                - 'false'
+                - '0'
+            - type: STR_REPLACE
+              parameters:
+                - 'true'
+                - '1'
+          master_item:
+            key: raw.ntp.status
+          tags:
+            - tag: component
+              value: NTP
+          triggers:
+            - uuid: 8280e9922752495b88d266a68db2bbc7
+              expression: 'last(/Digiton DIP100-API/ntp.enabled.status)<>{$NTP_STATUS}'
+              name: 'NTP Enabled status IS WRONG'
+              priority: WARNING
+              description: 'Проверка на корректность статуса работы NTP клиента.'
+        - uuid: c3bab372103b40b89df87e0f991c687b
+          name: 'NTP Server settings'
+          type: DEPENDENT
+          key: ntp.ntpserver
+          delay: '0'
+          history: 30d
+          trends: '0'
+          value_type: LOG
+          description: 'На какой сервер смотрит NTP клиент устройства'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data..ntp_server
+            - type: TRIM
+              parameters:
+                - '[|]|"'
+          master_item:
+            key: raw.ntp.status
+          tags:
+            - tag: component
+              value: NTP
+        - uuid: 3d5ccc018a204e5cab2eed07a1780631
+          name: 'NTP TimeZone'
+          type: DEPENDENT
+          key: ntp.timezone.status
+          delay: '0'
+          history: 30d
+          description: 'Настройка на DRC200 TimeZone'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data..timezone
+            - type: TRIM
+              parameters:
+                - '[|]'
+          master_item:
+            key: raw.ntp.status
+          tags:
+            - tag: component
+              value: NTP
+        - uuid: e63eac89c0be49edb5bb0d38cb7ad573
+          name: 'Raw Get front panel status'
+          type: HTTP_AGENT
+          key: raw.frontpanel.status
+          delay: 30m
+          history: '0'
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - 'return value.replace (/\\n/gi, ''\n'')'
+            - type: JAVASCRIPT
+              parameters:
+                - 'return value.replace (/\\/gi, '''')'
+            - type: STR_REPLACE
+              parameters:
+                - '"{'
+                - '{'
+            - type: STR_REPLACE
+              parameters:
+                - '}"'
+                - '}'
+          url: '{$HOST.SCHEMA}://{HOST.IP}:{$HOST.PORT}/api/'
+          posts: '{"command": "get_front_panel", "token": "{$DIGITONTOKEN}"}'
+          post_type: JSON
+          request_method: POST
+          tags:
+            - tag: RAW
+              value: 'Front panel'
+        - uuid: 76cd343d0c5b41759c56e610bae9a3f8
+          name: 'Raw Get general status'
+          type: HTTP_AGENT
+          key: raw.general.status
+          delay: 60m
+          history: '0'
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - 'return value.replace (/\\n/gi, ''\n'')'
+            - type: JAVASCRIPT
+              parameters:
+                - 'return value.replace (/\\/gi, '''')'
+            - type: STR_REPLACE
+              parameters:
+                - '"{'
+                - '{'
+            - type: STR_REPLACE
+              parameters:
+                - '}"'
+                - '}'
+          url: '{$HOST.SCHEMA}://{HOST.IP}:{$HOST.PORT}/api/'
+          posts: '{"command": "get_general", "token": "{$DIGITONTOKEN}"}'
+          post_type: JSON
+          request_method: POST
+          tags:
+            - tag: RAW
+              value: System
+        - uuid: 0579281c27eb4a6b9b00abcd27b8c537
+          name: 'Raw Get levels status'
+          type: HTTP_AGENT
+          key: raw.levels.status
+          delay: 15s
+          history: '0'
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - 'return value.replace (/\\n/gi, ''\n'')'
+            - type: JAVASCRIPT
+              parameters:
+                - 'return value.replace (/\\/gi, '''')'
+            - type: STR_REPLACE
+              parameters:
+                - '"{'
+                - '{'
+            - type: STR_REPLACE
+              parameters:
+                - '}"'
+                - '}'
+          url: '{$HOST.SCHEMA}://{HOST.IP}:{$HOST.PORT}/api/'
+          posts: '{"command": "get_levels", "token": "{$DIGITONTOKEN}"}'
+          post_type: JSON
+          request_method: POST
+          tags:
+            - tag: RAW
+              value: Levels
+        - uuid: 6e3213b099a24d65aa2a96aee3eaae17
+          name: 'Raw Get NTP status'
+          type: HTTP_AGENT
+          key: raw.ntp.status
+          delay: 30m
+          history: '0'
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - 'return value.replace (/\\n/gi, ''\n'')'
+            - type: JAVASCRIPT
+              parameters:
+                - 'return value.replace (/\\/gi, '''')'
+            - type: STR_REPLACE
+              parameters:
+                - '"{'
+                - '{'
+            - type: STR_REPLACE
+              parameters:
+                - '}"'
+                - '}'
+          url: '{$HOST.SCHEMA}://{HOST.IP}:{$HOST.PORT}/api/'
+          posts: '{"command": "get_time", "token": "{$DIGITONTOKEN}"}'
+          post_type: JSON
+          request_method: POST
+          tags:
+            - tag: RAW
+              value: NTP
+        - uuid: fd7e4187efe146dda6d02127b555caac
+          name: 'Raw Get silence settings status'
+          type: HTTP_AGENT
+          key: raw.silencesettings.status
+          delay: 30m
+          history: '0'
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - 'return value.replace (/\\n/gi, ''\n'')'
+            - type: JAVASCRIPT
+              parameters:
+                - 'return value.replace (/\\/gi, '''')'
+            - type: STR_REPLACE
+              parameters:
+                - '"{'
+                - '{'
+            - type: STR_REPLACE
+              parameters:
+                - '}"'
+                - '}'
+          url: '{$HOST.SCHEMA}://{HOST.IP}:{$HOST.PORT}/api/'
+          posts: '{"command": "get_silence_settings", "token": "{$DIGITONTOKEN}"}'
+          post_type: JSON
+          request_method: POST
+          tags:
+            - tag: RAW
+              value: 'Silence settings'
+        - uuid: 29368d137644449780bc410d46d5ff53
+          name: 'Raw Get System status'
+          type: HTTP_AGENT
+          key: raw.system.status
+          history: '0'
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - 'return value.replace (/\\n/gi, ''\n'')'
+            - type: JAVASCRIPT
+              parameters:
+                - 'return value.replace (/\\/gi, '''')'
+            - type: STR_REPLACE
+              parameters:
+                - '"{'
+                - '{'
+            - type: STR_REPLACE
+              parameters:
+                - '}"'
+                - '}'
+          url: '{$HOST.SCHEMA}://{HOST.IP}:{$HOST.PORT}/api/'
+          posts: '{"command": "cmd_console", "token": "{$DIGITONTOKEN}", "data": ["system_status"]}'
+          post_type: JSON
+          request_method: POST
+          tags:
+            - tag: RAW
+              value: 'System status'
+        - uuid: e35e2660012e490f9dc4c1461bae7b63
+          name: 'RX bypass status'
+          type: DEPENDENT
+          key: silence.rx.bypass.status
+          delay: '0'
+          valuemap:
+            name: 'General Status'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data.rx.bypass
+            - type: TRIM
+              parameters:
+                - '[|]'
+            - type: STR_REPLACE
+              parameters:
+                - 'false'
+                - '0'
+            - type: STR_REPLACE
+              parameters:
+                - 'true'
+                - '1'
+          master_item:
+            key: raw.silencesettings.status
+          tags:
+            - tag: component
+              value: Silence
+        - uuid: 13f9c782a5a3412ab327142360e3dfb9
+          name: 'RX signal duration'
+          type: DEPENDENT
+          key: silence.rx.signaldur
+          delay: '0'
+          units: s
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data.rx.signal_duration
+            - type: TRIM
+              parameters:
+                - '[|]'
+          master_item:
+            key: raw.silencesettings.status
+          tags:
+            - tag: component
+              value: Silence
+        - uuid: 2bc6a154ebe44e90aa1db5cff1e913ed
+          name: 'RX signal level'
+          type: DEPENDENT
+          key: silence.rx.signallevel
+          delay: '0'
+          value_type: FLOAT
+          units: dB
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data.rx.signal_level
+            - type: TRIM
+              parameters:
+                - '[|]'
+          master_item:
+            key: raw.silencesettings.status
+          tags:
+            - tag: component
+              value: Silence
+        - uuid: f2d54c3f14a34cac8c1cd5d677dae942
+          name: 'RX silence duration'
+          type: DEPENDENT
+          key: silence.rx.silencedur
+          delay: '0'
+          units: s
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data.rx.silence_duration
+            - type: TRIM
+              parameters:
+                - '[|]'
+          master_item:
+            key: raw.silencesettings.status
+          tags:
+            - tag: component
+              value: Silence
+        - uuid: 6156609c968944ccbd3552471f5030e5
+          name: 'RX silence level'
+          type: DEPENDENT
+          key: silence.rx.silencelevel
+          delay: '0'
+          value_type: FLOAT
+          units: dB
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data.rx.silence_level
+            - type: TRIM
+              parameters:
+                - '[|]'
+          master_item:
+            key: raw.silencesettings.status
+          tags:
+            - tag: component
+              value: Silence
+        - uuid: 30ed3416575c4b65bdf2a8271cc33c62
+          name: 'TX bypass status'
+          type: DEPENDENT
+          key: silence.tx.bypass.status
+          delay: '0'
+          valuemap:
+            name: 'General Status'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data.tx.bypass
+            - type: TRIM
+              parameters:
+                - '[|]'
+            - type: STR_REPLACE
+              parameters:
+                - 'false'
+                - '0'
+            - type: STR_REPLACE
+              parameters:
+                - 'true'
+                - '1'
+          master_item:
+            key: raw.silencesettings.status
+          tags:
+            - tag: component
+              value: Silence
+        - uuid: 8e7b0f07f2c54373b2f439dd25eadddb
+          name: 'TX signal duration'
+          type: DEPENDENT
+          key: silence.tx.signaldur
+          delay: '0'
+          units: s
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data.tx.signal_duration
+            - type: TRIM
+              parameters:
+                - '[|]'
+          master_item:
+            key: raw.silencesettings.status
+          tags:
+            - tag: component
+              value: Silence
+        - uuid: 7e9d0f2a58134073850923b987e0b185
+          name: 'TX signal level'
+          type: DEPENDENT
+          key: silence.tx.signallevel
+          delay: '0'
+          value_type: FLOAT
+          units: dB
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data.tx.signal_level
+            - type: TRIM
+              parameters:
+                - '[|]'
+          master_item:
+            key: raw.silencesettings.status
+          tags:
+            - tag: component
+              value: Silence
+        - uuid: 74affdbeb41043d7a9dad4a9b9f30854
+          name: 'TX silence duration'
+          type: DEPENDENT
+          key: silence.tx.silencedur
+          delay: '0'
+          units: s
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data.tx.silence_duration
+            - type: TRIM
+              parameters:
+                - '[|]'
+          master_item:
+            key: raw.silencesettings.status
+          tags:
+            - tag: component
+              value: Silence
+        - uuid: 8f7305495d61495d9532fea314bbc876
+          name: 'TX silence level'
+          type: DEPENDENT
+          key: silence.tx.silencelevel
+          delay: '0'
+          value_type: FLOAT
+          units: dB
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data.tx.silence_level
+            - type: TRIM
+              parameters:
+                - '[|]'
+          master_item:
+            key: raw.silencesettings.status
+          tags:
+            - tag: component
+              value: Silence
+        - uuid: 48d251cd4be8481197cf7bb6f0cec545
+          name: 'NTP UTC Time'
+          type: DEPENDENT
+          key: system.localtime
+          delay: '0'
+          history: 30d
+          units: unixtime
+          description: 'Текущее время в UTC'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data..utc_time
+            - type: TRIM
+              parameters:
+                - '[|]|"'
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  const date = new Date(value);
+                  const timestampSeconds = Math.floor(date.getTime() / 1000);
+                  return(timestampSeconds)
+          master_item:
+            key: raw.ntp.status
+          tags:
+            - tag: component
+              value: NTP
+          triggers:
+            - uuid: c6c97eebdba94c5499f70fb97d4076cc
+              expression: 'fuzzytime(/Digiton DIP100-API/system.localtime,{$SYSTEM.FUZZYTIME.MAX})=0'
+              name: 'System time is out of sync'
+              event_name: 'System time is out of sync (diff with Zabbix server > {$SYSTEM.FUZZYTIME.MAX}s)'
+              priority: WARNING
+              description: 'The host system time is different from the Zabbix server time.'
+              manual_close: 'YES'
+        - uuid: f72a0ce3367448d3a3dd64e127b8f440
+          name: Uptime
+          type: DEPENDENT
+          key: system.uptime
+          delay: '0'
+          history: 30d
+          trends: '0'
+          value_type: TEXT
+          description: 'DRC200 Uptime'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.data..Hardware.Uptime
+            - type: TRIM
+              parameters:
+                - '[|]|"'
+          master_item:
+            key: raw.system.status
+          tags:
+            - tag: System
+              value: Uptime
+      httptests:
+        - uuid: f85ad8d75626486487f6a64651b10a8e
+          name: 'Check https'
+          steps:
+            - name: 'First step'
+              url: '{$HOST.SCHEMA}://{HOST.IP}:{$HOST.PORT}'
+              follow_redirects: 'NO'
+              status_codes: '200'
+      macros:
+        - macro: '{$CPU.UTIL.CRIT}'
+          value: '350'
+        - macro: '{$DIGITONTOKEN}'
+        - macro: '{$FPAL_STATUS}'
+          value: '0'
+        - macro: '{$HOST.PORT}'
+          value: '443'
+        - macro: '{$HOST.SCHEMA}'
+          value: https
+        - macro: '{$NTP_STATUS}'
+          value: '1'
+        - macro: '{$SYSTEM.FUZZYTIME.MAX}'
+          value: '60'
+          description: 'The threshold for difference of system time in seconds.'
+        - macro: '{$TEMP_CRIT_CPU}'
+          value: '95'
+        - macro: '{$TEMP_CRIT_LOW_CPU}'
+          value: '5'
+        - macro: '{$TEMP_WARN_CPU}'
+          value: '85'
+      valuemaps:
+        - uuid: 047fe06a2636409a870635bf0f5fe3df
+          name: 'General Status'
+          mappings:
+            - value: '1'
+              newvalue: 'true'
+            - value: '0'
+              newvalue: 'false'
+        - uuid: 67114cfe36514c6fae11d30981da03fe
+          name: 'NTP Status'
+          mappings:
+            - value: '0'
+              newvalue: 'false'
+            - value: '1'
+              newvalue: 'true'
+  triggers:
+    - uuid: 0eccf53c756d42a9bcff3a67c36a3f35
+      expression: 'sum(/Digiton DIP100-API/web.test.fail[Check https],#3)=3'
+      recovery_mode: RECOVERY_EXPRESSION
+      recovery_expression: 'last(/Digiton DIP100-API/web.test.fail[Check https])=0'
+      name: 'HTTPS service on {HOST.NAME} is DOWN'
+      priority: WARNING
